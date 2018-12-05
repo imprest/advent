@@ -16,7 +16,7 @@ defmodule Day3 do
     elem(t, 0)
   end
 
-  def is_unique_id({_, x, y, w, h}, g) do
+  defp is_unique_id({_, x, y, w, h}, g) do
     r =
       Enum.reduce(y..(y + (h - 1)), [], fn i, acc ->
         tuple = Map.get(g, i)
