@@ -1,9 +1,39 @@
 defmodule Day3 do
-  def over_claimed(claims) do
-    grid = gen_grid(8, 8)
+  def gen_grid(x, y) do
+    zeroed_row = 0..y |> Enum.reduce([], fn _, acc -> [0 | acc] end)
 
+    Enum.reduce(0..x, %{}, fn r, acc ->
+      Map.put_new(acc, r, List.to_tuple(zeroed_row))
+    end)
+  end
+
+  def unique_id(grid \\ gen_grid(8, 8), claims) do
+    c = Enum.map(claims, &parse_claim/1)
+
+    g = Enum.reduce(c, grid, fn x, acc -> update_grid(x, acc) end)
+
+    t = Enum.find(c, fn x -> is_unique_id(x, g) end)
+    elem(t, 0)
+  end
+
+  def is_unique_id({_, x, y, w, h}, g) do
+    r =
+      Enum.reduce(y..(y + (h - 1)), [], fn i, acc ->
+        tuple = Map.get(g, i)
+        list = Enum.reduce(x..(x + (w - 1)), [], fn t, a -> [elem(tuple, t) | a] end)
+        [list | acc]
+      end)
+
+    answer =
+      List.flatten(r)
+      |> Enum.any?(fn j -> j > 1 end)
+
+    !answer
+  end
+
+  def over_claimed(grid \\ gen_grid(8, 8), claims) do
     claims
-    |> Enum.map(&parse_claims/1)
+    |> Enum.map(&parse_claim/1)
     |> Enum.reduce(grid, fn x, acc -> update_grid(x, acc) end)
     |> Enum.reduce(0, fn x, acc ->
       acc + count_overclaimed(elem(x, 1))
@@ -26,13 +56,13 @@ defmodule Day3 do
     end
   end
 
-  defp update_grid({_, _, _, 0}, grid) do
+  defp update_grid({_, _, _, _, 0}, grid) do
     grid
   end
 
-  defp update_grid({x, y, w, h}, grid) do
+  defp update_grid({id, x, y, w, h}, grid) do
     update_grid(
-      {x, y + 1, w, h - 1},
+      {id, x, y + 1, w, h - 1},
       Map.update!(grid, y, &update_tuple(&1, x, x + w))
     )
   end
@@ -46,21 +76,10 @@ defmodule Day3 do
     end
   end
 
-  def gen_grid(x, y) do
-    zeroed_row = 0..y |> Enum.reduce([], fn _, acc -> [0 | acc] end)
+  defp parse_claim(claim) do
+    [id, x, y, w, h] = :binary.split(claim, ["#", " @ ", ",", ": ", "x"], [:trim_all, :global])
 
-    Enum.reduce(0..x, %{}, fn r, acc ->
-      Map.put_new(acc, r, List.to_tuple(zeroed_row))
-    end)
-  end
-
-  defp parse_claims(<<"#", _id, " @ ", x, ",", y, ": ", w, "x", h, "\n">>) do
-    {:erlang.binary_to_integer(<<x>>), :erlang.binary_to_integer(<<y>>),
-     :erlang.binary_to_integer(<<w>>), :erlang.binary_to_integer(<<h>>)}
-  end
-
-  defp parse_claims(<<"#", _id, " @ ", x, ",", y, ": ", w, "x", h>>) do
-    {:erlang.binary_to_integer(<<x>>), :erlang.binary_to_integer(<<y>>),
-     :erlang.binary_to_integer(<<w>>), :erlang.binary_to_integer(<<h>>)}
+    {:erlang.binary_to_integer(id), :erlang.binary_to_integer(x), :erlang.binary_to_integer(y),
+     :erlang.binary_to_integer(w), :erlang.binary_to_integer(h)}
   end
 end

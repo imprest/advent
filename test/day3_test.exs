@@ -10,4 +10,12 @@ defmodule Day3Test do
              "#3 @ 5,5: 2x2"
            ]) == 4
   end
+
+  test "unique_id" do
+    assert Day3.unique_id([
+             "#1 @ 1,3: 4x4",
+             "#2 @ 3,1: 4x4",
+             "#3 @ 5,5: 2x2"
+           ]) == 3
+  end
 end
