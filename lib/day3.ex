@@ -7,6 +7,14 @@ defmodule Day3 do
     end)
   end
 
+  @doc """
+  Over claimed inches
+
+  ## Examples
+      iex> claims = String.split("#1 @ 1,3: 4x4|#2 @ 3,1: 4x4|#3 @ 5,5: 2x2", "|")
+      iex> Day3.unique_id(Day3.gen_grid(8, 8), claims)
+      3
+  """
   def unique_id(grid \\ gen_grid(8, 8), claims) do
     c = Enum.map(claims, &parse_claim/1)
 
@@ -31,6 +39,14 @@ defmodule Day3 do
     !answer
   end
 
+  @doc """
+  Over claimed inches
+
+  ## Examples
+      iex> claims = String.split("#1 @ 1,3: 4x4|#2 @ 3,1: 4x4|#3 @ 5,5: 2x2", "|")
+      iex> Day3.over_claimed(Day3.gen_grid(8, 8), claims)
+      4
+  """
   def over_claimed(grid \\ gen_grid(8, 8), claims) do
     claims
     |> Enum.map(&parse_claim/1)
